@@ -3,12 +3,19 @@ import cors from '@fastify/cors';
 import { FastifyInstance } from 'fastify';
 import { env } from '../config/env';
 
+const LOCALHOST_ORIGIN = /^https?:\/\/localhost:\d+$/;
+
 async function corsPlugin(fastify: FastifyInstance) {
   const allowedOrigins = env.CORS_ORIGIN.split(',').map((origin) => origin.trim());
 
   await fastify.register(cors, {
     origin: (origin, callback) => {
       if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (env.NODE_ENV !== 'production' && LOCALHOST_ORIGIN.test(origin)) {
         callback(null, true);
         return;
       }
