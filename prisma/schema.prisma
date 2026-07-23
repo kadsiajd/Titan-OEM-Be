@@ -103,3 +103,16 @@ model Customer {
 
   @@map("customers")
 }
+
+model Enquiry {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  company   String
+  email     String
+  phone     String?
+  message   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@map("enquiries")
+}
