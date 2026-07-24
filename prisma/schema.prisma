@@ -12,6 +12,35 @@ enum UserStatus {
   INACTIVE
 }
 
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+  PUBLISH
+  UNPUBLISH
+  ARCHIVE
+  STATUS_CHANGE
+  LOGIN
+}
+
+enum SpecificationFieldType {
+  TEXT
+  NUMBER
+  DECIMAL
+  BOOLEAN
+  DATE
+  SELECT
+  MULTI_SELECT
+  TABLE
+}
+
+enum ProductStatus {
+  PUBLISHED
+  ARCHIVED
+  DRAFT
+}
+
 model User {
   id           String     @id @default(uuid()) @db.Uuid
   firstName    String     @map("first_name")
@@ -26,13 +55,16 @@ model User {
   functionId   String     @map("function_id") @db.Uuid
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
+  deletedAt    DateTime?  @map("deleted_at")
   plant        Plant      @relation(fields: [plantId], references: [id], onDelete: Restrict)
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   function     Function   @relation(fields: [functionId], references: [id], onDelete: Restrict)
+  auditLogs    AuditLog[] @relation("AuditLogActor")
 
   @@index([plantId])
   @@index([departmentId])
   @@index([functionId])
+  @@index([deletedAt])
   @@map("users")
 }
 
@@ -67,39 +99,110 @@ model Function {
 }
 
 model File {
-  id         String     @id @default(uuid()) @db.Uuid
-  fileName   String     @map("file_name")
-  filePath   String     @map("file_path")
-  fileSize   BigInt     @map("file_size")
-  categories Category[]
-  customers  Customer[]
-  createdAt  DateTime   @default(now()) @map("created_at")
-  deletedAt  DateTime?  @map("deleted_at")
+  id               String             @id @default(uuid()) @db.Uuid
+  fileName         String             @map("file_name")
+  filePath         String             @map("file_path")
+  fileSize         BigInt             @map("file_size")
+  categories       Category[]
+  customers        Customer[]
+  productDocuments productDocuments[]
+  createdAt        DateTime           @default(now()) @map("created_at")
+  deletedAt        DateTime?          @map("deleted_at")
 
   @@index([deletedAt])
   @@map("files")
 }
 
-model Category {
-  id          String @id @default(uuid()) @db.Uuid
-  name        String
-  description String
-  filePathId  String @db.Uuid @map("file_path_id")
-  file        File   @relation(fields: [filePathId], references: [id], onDelete: Restrict)
+model productDocuments {
+  id         String          @id @default(uuid()) @db.Uuid
+  fileType   ProductFileType
+  filePathId String          @db.Uuid
+  filePath   File            @relation(fields: [filePathId], references: [id])
+  productId  String          @db.Uuid
+  product    Product         @relation(fields: [productId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  deletedAt  DateTime?       @map("deleted_at")
+}
 
-  @@index([filePathId])
-  @@map("categories")
+model Product {
+  id             String                 @id @default(uuid()) @db.Uuid
+  categoryId     String                 @db.Uuid
+  category       Category               @relation(fields: [categoryId], references: [id])
+  status         ProductStatus          @default(DRAFT)
+  name           String
+  specifications ProductSpecification[]
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  deletedAt      DateTime?
+  documents      productDocuments[]
+
+  @@index([deletedAt])
+  @@index([status])
+}
+
+enum ProductFileType {
+  SPEC_SHEET
+  TECHNICAL_DRAWING
+}
+
+model ProductSpecification {
+  id              String                @id @default(uuid()) @db.Uuid
+  productId       String                @db.Uuid
+  specificationId String                @db.Uuid
+  product         Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  specification   CategorySpecification @relation(fields: [specificationId], references: [id], onDelete: Cascade)
+  value           String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@unique([productId, specificationId])
+}
+
+model Category {
+  id             String                  @id @default(uuid()) @db.Uuid
+  name           String                  @unique
+  description    String?
+  filePathId     String                  @map("file_path_id") @db.Uuid
+  file           File                    @relation(fields: [filePathId], references: [id], onDelete: Restrict)
+  specifications CategorySpecification[]
+  products       Product[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  deletedAt      DateTime?
+
+  @@index([deletedAt])
+}
+
+model CategorySpecification {
+  id            String                 @id @default(uuid()) @db.Uuid
+  categoryId    String                 @db.Uuid
+  category      Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  fieldName     String
+  fieldKey      String
+  fieldType     SpecificationFieldType
+  placeholder   String?
+  isRequired    Boolean                @default(false)
+  isFilterable  Boolean                @default(false)
+  displayOrder  Int                    @default(0)
+  productValues ProductSpecification[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  deletedAt     DateTime?
+
+  @@unique([categoryId, fieldKey])
+  @@index([deletedAt])
 }
 
 model Customer {
-  id         String     @id @default(uuid()) @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
   name       String
-  filePathId String     @map("file_path_id") @db.Uuid
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt @map("updated_at")
-  deletedAt  DateTime?  @map("deleted_at")
-  file       File?      @relation(fields: [fileId], references: [id])
-  fileId     String?    @db.Uuid
+  filePathId String    @map("file_path_id") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+  file       File?     @relation(fields: [fileId], references: [id])
+  fileId     String?   @db.Uuid
 
   @@map("customers")
 }
@@ -116,3 +219,23 @@ model Enquiry {
   @@index([email])
   @@map("enquiries")
 }
+
+model AuditLog {
+  id         String      @id @default(uuid()) @db.Uuid
+  actorId    String?     @map("actor_id") @db.Uuid
+  actor      User?       @relation("AuditLogActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action     AuditAction
+  entityType String      @map("entity_type")
+  entityId   String      @map("entity_id") @db.Uuid
+  summary    String?
+  oldValues  Json?       @map("old_values")
+  newValues  Json?       @map("new_values")
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+

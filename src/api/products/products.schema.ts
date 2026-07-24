@@ -1,139 +1,90 @@
-export const getProductCategoriesSchema = {
-  response: {
-    200: {
+import { buildListRouteSchema } from '../../shared/schemas/common.schema';
+
+const productItemSchema = {
+  type: 'object',
+  properties: {
+    id: {
+      type: 'string',
+    },
+
+    name: {
+      type: 'string',
+    },
+
+    status: {
+      type: 'string',
+      enum: ['PUBLISHED', 'ARCHIVED', 'DRAFT'],
+    },
+
+    categoryId: {
+      type: 'string',
+    },
+
+    category: {
       type: 'object',
       properties: {
-        success: {
-          type: 'boolean',
+        id: {
+          type: 'string',
         },
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: {
-                type: 'string',
-              },
-              name: {
-                type: 'string',
-              },
-            },
-            required: ['id', 'name'],
-          },
+
+        name: {
+          type: 'string',
+        },
+
+        description: {
+          type: ['string', 'null'],
         },
       },
-      required: ['success', 'data'],
+
+      required: ['id', 'name', 'description'],
+    },
+
+    specifications: {
+      type: 'object',
+      description:
+        'Product specifications mapped using specification field keys.',
+      additionalProperties: {
+        type: 'string',
+      },
+    },
+
+    createdAt: {
+      type: 'string',
+      format: 'date-time',
+    },
+
+    updatedAt: {
+      type: 'string',
+      format: 'date-time',
     },
   },
+
+  required: [
+    'id',
+    'name',
+    'status',
+    'categoryId',
+    'category',
+    'specifications',
+    'createdAt',
+    'updatedAt',
+  ],
 };
 
 export const getProductsSchema = {
   querystring: {
     type: 'object',
+
     properties: {
-      category: {
+      categoryId: {
         type: 'string',
         minLength: 1,
+        description: 'ID of the product category',
       },
     },
-    required: ['category'],
+
+    required: ['categoryId'],
   },
 
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        success: {
-          type: 'boolean',
-        },
-
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: {
-                type: 'string',
-              },
-
-              name: {
-                type: 'string',
-              },
-
-              description: {
-                type: 'string',
-              },
-
-              categoryId: {
-                type: 'string',
-              },
-
-              category: {
-                type: 'string',
-              },
-
-              imageUrl: {
-                type: 'string',
-              },
-
-              specificationSheetUrl: {
-                type: 'string',
-              },
-
-              technicalDrawingUrl: {
-                type: 'string',
-              },
-
-              overview: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    label: {
-                      type: 'string',
-                    },
-
-                    value: {
-                      type: 'string',
-                    },
-                  },
-
-                  required: ['label', 'value'],
-                },
-              },
-            },
-
-            required: [
-              'id',
-              'name',
-              'description',
-              'categoryId',
-              'category',
-              'imageUrl',
-              'specificationSheetUrl',
-              'technicalDrawingUrl',
-              'overview',
-            ],
-          },
-        },
-      },
-
-      required: ['success', 'data'],
-    },
-
-    400: {
-      type: 'object',
-      properties: {
-        success: {
-          type: 'boolean',
-        },
-
-        message: {
-          type: 'string',
-        },
-      },
-
-      required: ['success', 'message'],
-    },
-  },
+  ...buildListRouteSchema(productItemSchema),
 };

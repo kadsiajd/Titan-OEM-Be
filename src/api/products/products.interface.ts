@@ -26,5 +26,5 @@ export interface Product {
   productDetails?: ProductDetailSection[];
 }
 export interface ProductQuery {
-  category: string;
+  categoryId: string;
 }
