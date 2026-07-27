@@ -5,7 +5,7 @@ import { sendSuccess } from '../../shared/utils/response';
 class CategoryController {
   private dao = new CategoryDao();
 
-  getAll = async (_request: FastifyRequest, reply: FastifyReply) => {
+  getAllCategories = async (_request: FastifyRequest, reply: FastifyReply) => {
     const categories = await this.dao.findAll();
 
     return sendSuccess(reply, {

@@ -5,10 +5,13 @@ const categoryItemSchema = {
   properties: {
     id: { type: 'string' },
     name: { type: 'string' },
-    description: { type: 'string' },
+    shortDescription: { type: 'string' },
+    briefDescription: { type: ['string', 'null'] },
+    createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time' }, 
     imageUrl: { type: 'string' },
   },
-  required: ['id', 'name', 'description', 'imageUrl'],
+  required: ['id', 'name', 'shortDescription', 'imageUrl'],
 };
 
 export const getCategoriesSchema = buildListRouteSchema(categoryItemSchema);

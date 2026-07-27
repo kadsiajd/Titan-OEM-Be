@@ -7,17 +7,27 @@ export const getProductsByCategory = async (
 ) => {
   const products = await prisma.product.findMany({
     where: {
-      category: {
-        id: {
-          equals: categoryId,
-        },
-      },
+      categoryId,
       status: ProductStatus.PUBLISHED,
       deletedAt: null,
     },
 
     include: {
       category: true,
+
+      images: {
+        where: {
+          deletedAt: null,
+        },
+
+        include: {
+          file: true,
+        },
+
+        orderBy: {
+          displayOrder: 'asc',
+        },
+      },
 
       specifications: {
         where: {
@@ -48,19 +58,30 @@ export const getProductsByCategory = async (
     name: product.name,
     status: product.status,
     categoryId: product.categoryId,
+    description: product.description,
 
     category: {
       id: product.category.id,
       name: product.category.name,
-      description: product.category.description,
+      shortDescription: product.category.shortDescription,
+      briefDescription: product.category.briefDescription,
     },
 
-    specifications: Object.fromEntries(
-      product.specifications.map((item) => [
-        item.specification.fieldKey,
-        item.value,
-      ]),
-    ),
+    images: product.images.map((image) => ({
+      id: image.id,
+      filePathId: image.filePathId,
+      filePath: image.file.filePath,
+      fileName: image.file.fileName,
+      displayOrder: image.displayOrder,
+    })),
+
+    specifications: product.specifications.map((item) => ({
+      fieldKey: item.specification.fieldKey,
+      fieldName: item.specification.fieldName,
+      value: item.value,
+      displayInCard: item.specification.isVisibleInOverview,
+      displayOrder: item.specification.displayOrder,
+    })),
 
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,

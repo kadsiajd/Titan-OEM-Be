@@ -9,7 +9,6 @@ const customerItemSchema = {
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
   },
-  required: ['id', 'name', 'logoUrl', 'createdAt', 'updatedAt'],
 };
 
 export const getCustomersSchema = buildListRouteSchema(customerItemSchema);

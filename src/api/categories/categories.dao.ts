@@ -11,7 +11,10 @@ class CategoryDao {
     return categories.map((category) => ({
       id: category.id,
       name: category.name,
-      description: category.description,
+      shortDescription: category.shortDescription,
+      briefDescription: category?.briefDescription,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
       imageUrl: category.file.filePath,
     }));
   }

@@ -2,6 +2,7 @@ import { buildListRouteSchema } from '../../shared/schemas/common.schema';
 
 const productItemSchema = {
   type: 'object',
+
   properties: {
     id: {
       type: 'string',
@@ -20,8 +21,13 @@ const productItemSchema = {
       type: 'string',
     },
 
+    description: {
+      type: 'string',
+    },
+
     category: {
       type: 'object',
+
       properties: {
         id: {
           type: 'string',
@@ -31,20 +37,96 @@ const productItemSchema = {
           type: 'string',
         },
 
-        description: {
+        shortDescription: {
+          type: 'string',
+        },
+
+        briefDescription: {
           type: ['string', 'null'],
         },
       },
 
-      required: ['id', 'name', 'description'],
+      required: [
+        'id',
+        'name',
+        'shortDescription',
+        'briefDescription',
+      ],
+    },
+
+    images: {
+      type: 'array',
+
+      items: {
+        type: 'object',
+
+        properties: {
+          id: {
+            type: 'string',
+          },
+
+          filePathId: {
+            type: 'string',
+          },
+
+          filePath: {
+            type: 'string',
+          },
+
+          fileName: {
+            type: 'string',
+          },
+
+          displayOrder: {
+            type: 'integer',
+          },
+        },
+
+        required: [
+          'id',
+          'filePathId',
+          'filePath',
+          'fileName',
+          'displayOrder',
+        ],
+      },
     },
 
     specifications: {
-      type: 'object',
-      description:
-        'Product specifications mapped using specification field keys.',
-      additionalProperties: {
-        type: 'string',
+      type: 'array',
+
+      items: {
+        type: 'object',
+
+        properties: {
+          fieldKey: {
+            type: 'string',
+          },
+
+          fieldName: {
+            type: 'string',
+          },
+
+          value: {
+            type: 'string',
+          },
+
+          displayInCard: {
+            type: 'boolean',
+          },
+
+          displayOrder: {
+            type: 'integer',
+          },
+        },
+
+        required: [
+          'fieldKey',
+          'fieldName',
+          'value',
+          'displayInCard',
+          'displayOrder',
+        ],
       },
     },
 
@@ -64,7 +146,9 @@ const productItemSchema = {
     'name',
     'status',
     'categoryId',
+    'description',
     'category',
+    'images',
     'specifications',
     'createdAt',
     'updatedAt',

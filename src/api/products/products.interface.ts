@@ -1,30 +1,49 @@
-export interface ProductField {
-  label: string;
-  value: string;
+export interface ProductImage {
+  id: string;
+  filePathId: string;
+  filePath: string;
+  fileName: string;
+  displayOrder: number;
 }
 
-export interface ProductDetailSection {
-  section: string;
-  fields: ProductField[];
+export interface ProductSpecification {
+  fieldKey: string;
+  fieldName: string;
+  value: string;
+  displayInCard: boolean;
+  displayOrder: number;
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  shortDescription: string;
+  briefDescription: string | null;
 }
 
 export interface Product {
   id: string;
   name: string;
+  status: 'PUBLISHED' | 'ARCHIVED' | 'DRAFT';
+  categoryId: string;
   description: string;
 
-  categoryId: string;
-  category: string;
+  category: ProductCategory;
 
-  imageUrl: string;
+  images: ProductImage[];
 
-  specificationSheetUrl: string;
-  technicalDrawingUrl: string;
+  specifications: ProductSpecification[];
 
-  overview: ProductField[];
-
-  productDetails?: ProductDetailSection[];
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface ProductsResponse {
+  success: boolean;
+  message?: string;
+  data: Product[];
+}
+
 export interface ProductQuery {
   categoryId: string;
 }
