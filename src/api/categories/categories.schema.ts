@@ -8,7 +8,7 @@ const categoryItemSchema = {
     shortDescription: { type: 'string' },
     briefDescription: { type: ['string', 'null'] },
     createdAt: { type: 'string', format: 'date-time' },
-    updatedAt: { type: 'string', format: 'date-time' }, 
+    updatedAt: { type: 'string', format: 'date-time' },
     imageUrl: { type: 'string' },
   },
   required: ['id', 'name', 'shortDescription', 'imageUrl'],

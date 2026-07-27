@@ -46,12 +46,7 @@ const productItemSchema = {
         },
       },
 
-      required: [
-        'id',
-        'name',
-        'shortDescription',
-        'briefDescription',
-      ],
+      required: ['id', 'name', 'shortDescription', 'briefDescription'],
     },
 
     images: {
@@ -82,13 +77,7 @@ const productItemSchema = {
           },
         },
 
-        required: [
-          'id',
-          'filePathId',
-          'filePath',
-          'fileName',
-          'displayOrder',
-        ],
+        required: ['id', 'filePathId', 'filePath', 'fileName', 'displayOrder'],
       },
     },
 
@@ -120,13 +109,7 @@ const productItemSchema = {
           },
         },
 
-        required: [
-          'fieldKey',
-          'fieldName',
-          'value',
-          'displayInCard',
-          'displayOrder',
-        ],
+        required: ['fieldKey', 'fieldName', 'value', 'displayInCard', 'displayOrder'],
       },
     },
 

@@ -4,7 +4,7 @@ import * as customerController from './customers.controller';
 import { getCustomersSchema } from './customers.schema';
 
 const customerRoutes: IRouteOptions[] = [
-      {
+  {
     url: '/customers',
     handler: customerController.getCustomers,
     schema: getCustomersSchema,

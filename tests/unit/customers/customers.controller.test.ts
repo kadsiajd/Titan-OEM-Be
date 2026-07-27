@@ -78,8 +78,6 @@ describe('getCustomers', () => {
 
     const reply = createMockReply();
 
-    await expect(getCustomers({} as FastifyRequest, reply)).rejects.toThrow(
-      'database unavailable',
-    );
+    await expect(getCustomers({} as FastifyRequest, reply)).rejects.toThrow('database unavailable');
   });
 });

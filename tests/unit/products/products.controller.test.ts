@@ -46,9 +46,7 @@ describe('getProducts', () => {
       reply,
     );
 
-    expect(getProductsByCategoryMock).toHaveBeenCalledWith(
-      categoryId,
-    );
+    expect(getProductsByCategoryMock).toHaveBeenCalledWith(categoryId);
 
     expect(reply.status).toHaveBeenCalledWith(200);
 
@@ -67,9 +65,7 @@ describe('getProducts', () => {
   it('propagates a dao failure instead of swallowing it', async () => {
     const categoryId = 'category-1';
 
-    getProductsByCategoryMock.mockRejectedValue(
-      new Error('database unavailable'),
-    );
+    getProductsByCategoryMock.mockRejectedValue(new Error('database unavailable'));
 
     const reply = createMockReply();
 

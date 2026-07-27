@@ -131,8 +131,6 @@ describe('errorHandler', () => {
     errorHandler(teapotError, mockRequest, reply);
 
     expect(reply.status).toHaveBeenCalledWith(418);
-    expect(reply.send).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "I'm a teapot" }),
-    );
+    expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ message: "I'm a teapot" }));
   });
 });

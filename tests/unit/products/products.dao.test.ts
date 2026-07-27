@@ -101,9 +101,7 @@ describe('getProductsByCategory', () => {
       },
     ]);
 
-    await expect(
-      getProductsByCategory('category-1'),
-    ).resolves.toEqual([
+    await expect(getProductsByCategory('category-1')).resolves.toEqual([
       {
         id: 'product-1',
         name: '6130',

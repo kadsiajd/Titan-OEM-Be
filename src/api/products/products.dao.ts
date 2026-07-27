@@ -2,9 +2,7 @@ import { PrismaClient, ProductStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const getProductsByCategory = async (
-  categoryId: string,
-) => {
+export const getProductsByCategory = async (categoryId: string) => {
   const products = await prisma.product.findMany({
     where: {
       categoryId,
