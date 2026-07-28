@@ -105,7 +105,7 @@ model File {
   fileSize         BigInt             @map("file_size")
   categories       Category[]
   customers        Customer[]
-  productDocuments productDocuments[]
+  productDocuments ProductDocument[]
   productImages    ProductImages[]
   createdAt        DateTime           @default(now()) @map("created_at")
   deletedAt        DateTime?          @map("deleted_at")
@@ -114,16 +114,19 @@ model File {
   @@map("files")
 }
 
-model productDocuments {
+model ProductDocument {
   id         String          @id @default(uuid()) @db.Uuid
   fileType   ProductFileType
-  filePathId String          @db.Uuid
-  filePath   File            @relation(fields: [filePathId], references: [id])
+  fileId     String          @db.Uuid
+  file       File            @relation(fields: [fileId], references: [id])
   productId  String          @db.Uuid
   product    Product         @relation(fields: [productId], references: [id])
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
   deletedAt  DateTime?       @map("deleted_at")
+
+  @@unique([productId, fileType])
+  @@map("product_documents")
 }
 
 model Product {
@@ -132,13 +135,13 @@ model Product {
   category       Category               @relation(fields: [categoryId], references: [id])
   status         ProductStatus          @default(DRAFT)
   name           String
-  description    String
+  description    String                @default("no description found")
   images         ProductImages[]
   specifications ProductSpecification[]
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
   deletedAt      DateTime?
-  documents      productDocuments[]
+  documents      ProductDocument[]
 
   @@index([deletedAt])
   @@index([status])
@@ -220,7 +223,6 @@ model CategorySpecification {
 model Customer {
   id         String    @id @default(uuid()) @db.Uuid
   name       String
-  filePathId String    @map("file_path_id") @db.Uuid
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")

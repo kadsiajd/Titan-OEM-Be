@@ -44,6 +44,16 @@ export const getProductsByCategory = async (categoryId: string) => {
           },
         },
       },
+
+      documents: {
+        where: {
+          deletedAt: null,
+        },
+
+        include: {
+          file: true,
+        },
+      },
     },
 
     orderBy: {
@@ -79,6 +89,12 @@ export const getProductsByCategory = async (categoryId: string) => {
       value: item.value,
       displayInCard: item.specification.isVisibleInOverview,
       displayOrder: item.specification.displayOrder,
+    })),
+
+    documents: product.documents.map((document) => ({
+      id: document.id,
+      fileType: document.fileType,
+      fileName: document.file.fileName,
     })),
 
     createdAt: product.createdAt,

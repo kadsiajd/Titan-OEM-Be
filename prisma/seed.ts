@@ -923,13 +923,13 @@ async function seedCategories() {
         name: categoryData.name,
       },
       update: {
-        description: categoryData.description,
+        shortDescription: categoryData.description,
         filePathId: file.id,
         deletedAt: null,
       },
       create: {
         name: categoryData.name,
-        description: categoryData.description,
+        shortDescription: categoryData.description,
         filePathId: file.id,
       },
     });
@@ -1034,6 +1034,16 @@ async function seedProducts(
       products,
     );
 
+  const specSheetFile = await seedFile(
+    'spec-sheet-placeholder.pdf',
+    '/documents/spec-sheet-placeholder.pdf',
+  );
+
+  const technicalDrawingFile = await seedFile(
+    'technical-drawing-placeholder.pdf',
+    '/documents/technical-drawing-placeholder.pdf',
+  );
+
   for (const productData of products) {
     const product = await prisma.product.upsert({
       where: {
@@ -1091,6 +1101,43 @@ async function seedProducts(
         },
       });
     }
+
+    // Documents (placeholder until real files are uploaded per product)
+    await prisma.productDocument.upsert({
+      where: {
+        productId_fileType: {
+          productId: product.id,
+          fileType: ProductFileType.SPEC_SHEET,
+        },
+      },
+      update: {
+        fileId: specSheetFile.id,
+        deletedAt: null,
+      },
+      create: {
+        productId: product.id,
+        fileType: ProductFileType.SPEC_SHEET,
+        fileId: specSheetFile.id,
+      },
+    });
+
+    await prisma.productDocument.upsert({
+      where: {
+        productId_fileType: {
+          productId: product.id,
+          fileType: ProductFileType.TECHNICAL_DRAWING,
+        },
+      },
+      update: {
+        fileId: technicalDrawingFile.id,
+        deletedAt: null,
+      },
+      create: {
+        productId: product.id,
+        fileType: ProductFileType.TECHNICAL_DRAWING,
+        fileId: technicalDrawingFile.id,
+      },
+    });
 
     console.log(
       `✅ ${productData.name}`,
