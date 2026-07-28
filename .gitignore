@@ -6,3 +6,7 @@ coverage
 .DS_Store
 .idea
 .vscode
+
+uploads/**
+!uploads/**/
+!uploads/**/.gitkeep

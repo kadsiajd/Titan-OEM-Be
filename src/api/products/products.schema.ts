@@ -113,6 +113,31 @@ const productItemSchema = {
       },
     },
 
+    documents: {
+      type: 'array',
+
+      items: {
+        type: 'object',
+
+        properties: {
+          id: {
+            type: 'string',
+          },
+
+          fileType: {
+            type: 'string',
+            enum: ['SPEC_SHEET', 'TECHNICAL_DRAWING'],
+          },
+
+          fileName: {
+            type: 'string',
+          },
+        },
+
+        required: ['id', 'fileType', 'fileName'],
+      },
+    },
+
     createdAt: {
       type: 'string',
       format: 'date-time',
@@ -133,6 +158,7 @@ const productItemSchema = {
     'category',
     'images',
     'specifications',
+    'documents',
     'createdAt',
     'updatedAt',
   ],

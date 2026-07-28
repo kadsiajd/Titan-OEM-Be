@@ -14,6 +14,12 @@ export interface ProductSpecification {
   displayOrder: number;
 }
 
+export interface ProductDocument {
+  id: string;
+  fileType: 'SPEC_SHEET' | 'TECHNICAL_DRAWING';
+  fileName: string;
+}
+
 export interface ProductCategory {
   id: string;
   name: string;
@@ -33,6 +39,8 @@ export interface Product {
   images: ProductImage[];
 
   specifications: ProductSpecification[];
+
+  documents: ProductDocument[];
 
   createdAt: string;
   updatedAt: string;
