@@ -2,6 +2,7 @@ export interface ProductImage {
   id: string;
   filePathId: string;
   filePath: string;
+  imageUrl: string;
   fileName: string;
   displayOrder: number;
 }
@@ -16,8 +17,10 @@ export interface ProductSpecification {
 
 export interface ProductDocument {
   id: string;
+  fileId: string;
   fileType: 'SPEC_SHEET' | 'TECHNICAL_DRAWING';
   fileName: string;
+  fileUrl: string;
 }
 
 export interface ProductCategory {
@@ -25,6 +28,7 @@ export interface ProductCategory {
   name: string;
   shortDescription: string;
   briefDescription: string | null;
+  imageUrl: string;
 }
 
 export interface Product {
@@ -54,4 +58,9 @@ export interface ProductsResponse {
 
 export interface ProductQuery {
   categoryId: string;
+}
+
+export interface GetAllProductsQuery {
+  categoryId?: string;
+  search?: string;
 }

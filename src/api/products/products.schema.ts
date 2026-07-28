@@ -44,9 +44,13 @@ const productItemSchema = {
         briefDescription: {
           type: ['string', 'null'],
         },
+
+        imageUrl: {
+          type: 'string',
+        },
       },
 
-      required: ['id', 'name', 'shortDescription', 'briefDescription'],
+      required: ['id', 'name', 'shortDescription', 'briefDescription', 'imageUrl'],
     },
 
     images: {
@@ -68,6 +72,10 @@ const productItemSchema = {
             type: 'string',
           },
 
+          imageUrl: {
+            type: 'string',
+          },
+
           fileName: {
             type: 'string',
           },
@@ -77,7 +85,7 @@ const productItemSchema = {
           },
         },
 
-        required: ['id', 'filePathId', 'filePath', 'fileName', 'displayOrder'],
+        required: ['id', 'filePathId', 'filePath', 'imageUrl', 'fileName', 'displayOrder'],
       },
     },
 
@@ -124,6 +132,10 @@ const productItemSchema = {
             type: 'string',
           },
 
+          fileId: {
+            type: 'string',
+          },
+
           fileType: {
             type: 'string',
             enum: ['SPEC_SHEET', 'TECHNICAL_DRAWING'],
@@ -132,9 +144,14 @@ const productItemSchema = {
           fileName: {
             type: 'string',
           },
+
+          fileUrl: {
+            type: 'string',
+          },
+
         },
 
-        required: ['id', 'fileType', 'fileName'],
+        required: ['id', 'fileId', 'fileType', 'fileName', 'fileUrl'],
       },
     },
 
@@ -180,4 +197,64 @@ export const getProductsSchema = {
   },
 
   ...buildListRouteSchema(productItemSchema),
+};
+
+const fileSchema = {
+  type: ['object', 'null'],
+  properties: {
+    id: { type: 'string' },
+    fileName: { type: 'string' },
+    fileUrl: { type: 'string' },
+  },
+  required: ['id', 'fileName', 'fileUrl'],
+};
+
+const getAllProductItemSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    name: { type: 'string' },
+    description: { type: 'string' },
+    category: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        imageUrl: { type: 'string' },
+      },
+      required: ['id', 'name', 'imageUrl'],
+    },
+    image: {
+      type: ['object', 'null'],
+      properties: {
+        id: { type: 'string' },
+        fileName: { type: 'string' },
+        imageUrl: { type: 'string' },
+        displayOrder: { type: 'integer' },
+      },
+      required: ['id', 'fileName', 'imageUrl', 'displayOrder'],
+    },
+    specSheet: fileSchema,
+    technicalDrawing: fileSchema,
+  },
+  required: ['id', 'name', 'description', 'category', 'image', 'specSheet', 'technicalDrawing'],
+};
+
+export const getAllProductsSchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      categoryId: {
+        type: 'string',
+        minLength: 1,
+        description: 'ID of the product category',
+      },
+      search: {
+        type: 'string',
+        minLength: 1,
+        description: 'Searches product names and descriptions',
+      },
+    },
+  },
+  ...buildListRouteSchema(getAllProductItemSchema),
 };

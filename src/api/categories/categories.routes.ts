@@ -1,3 +1,4 @@
+import { API_METHODS } from '../../config/api-methods';
 import { IRouteOptions } from '../../shared/types/route.interface';
 import CategoryController from './categories.controller';
 import { getCategoriesSchema } from './categories.schema';
@@ -7,7 +8,7 @@ const controller = new CategoryController();
 const categoryRoutes: IRouteOptions[] = [
   {
     url: '/categories',
-    method: 'GET',
+    method: API_METHODS.GET,
     handler: controller.getAllCategories,
     schema: getCategoriesSchema,
   },

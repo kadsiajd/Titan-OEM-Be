@@ -32,8 +32,7 @@ type ProductSeed = {
 const CATEGORIES = [
   {
     name: 'Quartz',
-    description:
-      'Accurate and reliable quartz movements designed for everyday watch applications.',
+    description: 'Accurate and reliable quartz movements designed for everyday watch applications.',
     imageName: 'quartz.png',
     imagePath: '/categories/quartz.png',
   },
@@ -842,14 +841,12 @@ const MICROMOTOR_PRODUCTS: ProductSeed[] = [
       {
         fieldName: 'Angular Rotation Per Pulse',
         fieldKey: 'angular_rotation_per_pulse',
-        value:
-          'Minute hand: 1°; Hour hand: 1°; Second hand: 1°',
+        value: 'Minute hand: 1°; Hour hand: 1°; Second hand: 1°',
       },
       {
         fieldName: 'No. of Steps for 360° Rotation',
         fieldKey: 'no_of_steps_for_360_rotation',
-        value:
-          'Minute hand: 360; Hour hand: 360',
+        value: 'Minute hand: 360; Hour hand: 360',
       },
       {
         fieldName: 'Resistance',
@@ -879,10 +876,7 @@ const MICROMOTOR_PRODUCTS: ProductSeed[] = [
    FILE
 ========================================================= */
 
-async function seedFile(
-  fileName: string,
-  filePath: string,
-) {
+async function seedFile(fileName: string, filePath: string) {
   const existingFile = await prisma.file.findFirst({
     where: {
       fileName,
@@ -913,10 +907,7 @@ async function seedCategories() {
   const categories: Record<string, any> = {};
 
   for (const categoryData of CATEGORIES) {
-    const file = await seedFile(
-      categoryData.imageName,
-      categoryData.imagePath,
-    );
+    const file = await seedFile(categoryData.imageName, categoryData.imagePath);
 
     const category = await prisma.category.upsert({
       where: {
@@ -946,68 +937,47 @@ async function seedCategories() {
    CATEGORY SPECIFICATION SEED
 ========================================================= */
 
-async function seedCategorySpecifications(
-  categoryId: string,
-  products: ProductSeed[],
-) {
-  const specifications = new Map<
-    string,
-    SpecificationSeed
-  >();
+async function seedCategorySpecifications(categoryId: string, products: ProductSeed[]) {
+  const specifications = new Map<string, SpecificationSeed>();
 
   for (const product of products) {
     for (const specification of product.specifications) {
       if (!specifications.has(specification.fieldKey)) {
-        specifications.set(
-          specification.fieldKey,
-          specification,
-        );
+        specifications.set(specification.fieldKey, specification);
       }
     }
   }
 
-  const specificationMap = new Map<
-    string,
-    string
-  >();
+  const specificationMap = new Map<string, string>();
 
   let displayOrder = 1;
 
   for (const specification of specifications.values()) {
-    const categorySpecification =
-      await prisma.categorySpecification.upsert({
-        where: {
-          categoryId_fieldKey: {
-            categoryId,
-            fieldKey: specification.fieldKey,
-          },
-        },
-        update: {
-          fieldName: specification.fieldName,
-          fieldType:
-            specification.fieldType ??
-            SpecificationFieldType.TEXT,
-          displayOrder,
-          deletedAt: null,
-        },
-        create: {
+    const categorySpecification = await prisma.categorySpecification.upsert({
+      where: {
+        categoryId_fieldKey: {
           categoryId,
-          fieldName: specification.fieldName,
           fieldKey: specification.fieldKey,
-          fieldType:
-            specification.fieldType ??
-            SpecificationFieldType.TEXT,
-          isRequired: false,
-          isFilterable:
-            specification.isFilterable ?? false,
-          displayOrder,
         },
-      });
+      },
+      update: {
+        fieldName: specification.fieldName,
+        fieldType: specification.fieldType ?? SpecificationFieldType.TEXT,
+        displayOrder,
+        deletedAt: null,
+      },
+      create: {
+        categoryId,
+        fieldName: specification.fieldName,
+        fieldKey: specification.fieldKey,
+        fieldType: specification.fieldType ?? SpecificationFieldType.TEXT,
+        isRequired: false,
+        isFilterable: specification.isFilterable ?? false,
+        displayOrder,
+      },
+    });
 
-    specificationMap.set(
-      specification.fieldKey,
-      categorySpecification.id,
-    );
+    specificationMap.set(specification.fieldKey, categorySpecification.id);
 
     displayOrder++;
   }
@@ -1019,20 +989,10 @@ async function seedCategorySpecifications(
    PRODUCT SEED
 ========================================================= */
 
-async function seedProducts(
-  categoryName: string,
-  categoryId: string,
-  products: ProductSeed[],
-) {
-  console.log(
-    `\n📦 Seeding ${categoryName} products...\n`,
-  );
+async function seedProducts(categoryName: string, categoryId: string, products: ProductSeed[]) {
+  console.log(`\n📦 Seeding ${categoryName} products...\n`);
 
-  const specificationMap =
-    await seedCategorySpecifications(
-      categoryId,
-      products,
-    );
+  const specificationMap = await seedCategorySpecifications(categoryId, products);
 
   const specSheetFile = await seedFile(
     'spec-sheet-placeholder.pdf',
@@ -1082,15 +1042,10 @@ async function seedProducts(
 
     // Create current specification values
     for (const specification of productData.specifications) {
-      const specificationId =
-        specificationMap.get(
-          specification.fieldKey,
-        );
+      const specificationId = specificationMap.get(specification.fieldKey);
 
       if (!specificationId) {
-        throw new Error(
-          `Specification "${specification.fieldKey}" not found for ${categoryName}`,
-        );
+        throw new Error(`Specification "${specification.fieldKey}" not found for ${categoryName}`);
       }
 
       await prisma.productSpecification.create({
@@ -1098,6 +1053,33 @@ async function seedProducts(
           productId: product.id,
           specificationId,
           value: specification.value,
+        },
+      });
+    }
+
+    const productImageFile = await seedFile(
+      `${categoryName.toLowerCase()}-${productData.name.toLowerCase().replace(/\s+/g, '-')}.png`,
+      `/products/${categoryName.toLowerCase()}-${productData.name.toLowerCase().replace(/\s+/g, '-')}.png`,
+    );
+
+    const existingProductImage = await prisma.productImages.findFirst({
+      where: {
+        productId: product.id,
+        filePathId: productImageFile.id,
+      },
+    });
+
+    if (existingProductImage) {
+      await prisma.productImages.update({
+        where: { id: existingProductImage.id },
+        data: { displayOrder: 1, deletedAt: null },
+      });
+    } else {
+      await prisma.productImages.create({
+        data: {
+          productId: product.id,
+          filePathId: productImageFile.id,
+          displayOrder: 1,
         },
       });
     }
@@ -1139,9 +1121,7 @@ async function seedProducts(
       },
     });
 
-    console.log(
-      `✅ ${productData.name}`,
-    );
+    console.log(`✅ ${productData.name}`);
   }
 }
 
@@ -1155,31 +1135,16 @@ async function main() {
   console.log('==========================================');
 
   try {
-    const categories =
-      await seedCategories();
+    const categories = await seedCategories();
 
-    await seedProducts(
-      'Quartz',
-      categories.Quartz.id,
-      QUARTZ_PRODUCTS,
-    );
+    await seedProducts('Quartz', categories.Quartz.id, QUARTZ_PRODUCTS);
 
-    await seedProducts(
-      'Mechanical',
-      categories.Mechanical.id,
-      MECHANICAL_PRODUCTS,
-    );
+    await seedProducts('Mechanical', categories.Mechanical.id, MECHANICAL_PRODUCTS);
 
-    await seedProducts(
-      'Micromotors',
-      categories.Micromotors.id,
-      MICROMOTOR_PRODUCTS,
-    );
+    await seedProducts('Micromotors', categories.Micromotors.id, MICROMOTOR_PRODUCTS);
 
     console.log('\n==========================================');
-    console.log(
-      '🎉 DATABASE SEED COMPLETED SUCCESSFULLY',
-    );
+    console.log('🎉 DATABASE SEED COMPLETED SUCCESSFULLY');
     console.log('==========================================\n');
   } catch (error) {
     console.error('\n❌ SEED FAILED');

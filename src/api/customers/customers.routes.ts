@@ -1,3 +1,4 @@
+import { API_METHODS } from '../../config/api-methods';
 import { IRouteOptions } from '../../shared/types/route.interface';
 
 import * as customerController from './customers.controller';
@@ -8,7 +9,7 @@ const customerRoutes: IRouteOptions[] = [
     url: '/customers',
     handler: customerController.getCustomers,
     schema: getCustomersSchema,
-    method: 'GET',
+    method: API_METHODS.GET,
   },
 ];
 
