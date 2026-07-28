@@ -1,4 +1,5 @@
 import prisma from '../../shared/db/prisma';
+import { buildFileUrl } from '../../shared/utils/local-storage';
 import { Category } from './categories.interface';
 
 class CategoryDao {
@@ -15,7 +16,7 @@ class CategoryDao {
       briefDescription: category?.briefDescription,
       createdAt: category.createdAt,
       updatedAt: category.updatedAt,
-      imageUrl: category.file.filePath,
+      imageUrl: buildFileUrl(category.file.id),
     }));
   }
 }

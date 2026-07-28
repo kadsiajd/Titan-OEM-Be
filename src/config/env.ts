@@ -9,6 +9,7 @@ const envSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
   DATABASE_URL: z.string().min(1),
   UPLOAD_ROOT: z.string().default('./uploads'),
+  BASE_URL: z.string().default('http://localhost:4000'),
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
