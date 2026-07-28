@@ -1,4 +1,5 @@
 import { PrismaClient, ProductStatus } from '@prisma/client';
+import { buildFileUrl } from '../../shared/utils/local-storage';
 
 const prisma = new PrismaClient();
 
@@ -78,7 +79,7 @@ export const getProductsByCategory = async (categoryId: string) => {
     images: product.images.map((image) => ({
       id: image.id,
       filePathId: image.filePathId,
-      filePath: image.file.filePath,
+      filePath: buildFileUrl(image.filePathId),
       fileName: image.file.fileName,
       displayOrder: image.displayOrder,
     })),

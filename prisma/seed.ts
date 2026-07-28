@@ -34,22 +34,22 @@ const CATEGORIES = [
     name: 'Quartz',
     description:
       'Accurate and reliable quartz movements designed for everyday watch applications.',
-    imageName: 'quartz.jpg',
-    imagePath: '/categories/quartz.jpg',
+    imageName: 'quartz.png',
+    imagePath: '/categories/quartz.png',
   },
   {
     name: 'Mechanical',
     description:
       'Mechanical watch movements featuring automatic winding and precision engineering.',
-    imageName: 'mechanical.jpg',
-    imagePath: '/categories/mechanical.jpg',
+    imageName: 'mechanical.png',
+    imagePath: '/categories/mechanical.png',
   },
   {
     name: 'Micromotors',
     description:
       'Compact micromotor movements designed for precise multi-hand and independent hand control.',
-    imageName: 'micromotors.jpg',
-    imagePath: '/categories/micromotors.jpg',
+    imageName: 'micromotors.png',
+    imagePath: '/categories/micromotors.png',
   },
 ];
 

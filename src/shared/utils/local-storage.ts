@@ -24,10 +24,12 @@ export interface ResolvedFile {
   mimeType: string;
 }
 
-/**
- * Turns a DB-stored relative path (e.g. "/categories/quartz.jpg") into a
- * real file on disk, guarding against traversal outside UPLOAD_ROOT.
- */
+
+export function buildFileUrl(fileId: string): string {
+  return `${env.BASE_URL}/files/${fileId}`;
+}
+
+
 export function resolveFile(relativePath: string): ResolvedFile {
   const normalized = path
     .normalize(`/${relativePath}`)
@@ -54,14 +56,9 @@ export function resolveFile(relativePath: string): ResolvedFile {
 }
 
 interface StreamFileOptions {
-  /** When set, sends Content-Disposition: attachment with this filename. */
   downloadFileName?: string;
 }
 
-/**
- * Streams a resolved file to the client, honoring Range requests (206
- * Partial Content) so large files don't have to be buffered in memory.
- */
 export function streamFile(
   request: FastifyRequest,
   reply: FastifyReply,
