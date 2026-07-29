@@ -8,6 +8,10 @@ vi.mock('../../../src/shared/db/prisma', () => ({
   },
 }));
 
+vi.mock('../../../src/shared/utils/fileStreams', () => ({
+  buildFileUrl: (fileId: string) => `https://files.example.test/files/${fileId}`,
+}));
+
 import prisma from '../../../src/shared/db/prisma';
 import CategoryDao from '../../../src/api/categories/categories.dao';
 
@@ -30,13 +34,19 @@ describe('CategoryDao.findAll', () => {
     });
   });
 
-  it('maps the nested file.filePath to imageUrl on each category', async () => {
+  it('maps the category fields and nested file id to imageUrl on each category', async () => {
+    const createdAt = new Date('2026-01-01');
+    const updatedAt = new Date('2026-01-02');
+
     findManyMock.mockResolvedValue([
       {
         id: 'cat-1',
         name: 'Motors',
-        description: 'Precision motors',
-        file: { filePath: '/uploads/motors.jpg' },
+        shortDescription: 'Precision motors',
+        briefDescription: 'Movement components',
+        createdAt,
+        updatedAt,
+        file: { id: 'category-file-1' },
       },
     ] as never);
     const dao = new CategoryDao();
@@ -47,8 +57,11 @@ describe('CategoryDao.findAll', () => {
       {
         id: 'cat-1',
         name: 'Motors',
-        description: 'Precision motors',
-        imageUrl: '/uploads/motors.jpg',
+        shortDescription: 'Precision motors',
+        briefDescription: 'Movement components',
+        createdAt,
+        updatedAt,
+        imageUrl: 'https://files.example.test/files/category-file-1',
       },
     ]);
   });

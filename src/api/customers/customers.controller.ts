@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { getAllCustomers } from './customers.dao';
 import { CustomerResponse } from './customers.interface';
 import { sendSuccess } from '../../shared/utils/response';
-import { buildFileUrl } from '../../shared/utils/local-storage';
+import { buildFileUrl } from '../../shared/utils/fileStreams';
 
 export const getCustomers = async (_request: FastifyRequest, reply: FastifyReply) => {
   const customers = await getAllCustomers();

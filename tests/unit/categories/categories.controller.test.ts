@@ -19,7 +19,7 @@ function createMockReply() {
   return reply as unknown as FastifyReply;
 }
 
-describe('CategoryController.getAll', () => {
+describe('CategoryController.getAllCategories', () => {
   beforeEach(() => {
     findAllMock.mockReset();
   });
@@ -33,7 +33,7 @@ describe('CategoryController.getAll', () => {
     const controller = new CategoryController();
     const reply = createMockReply();
 
-    await controller.getAll({} as FastifyRequest, reply);
+    await controller.getAllCategories({} as FastifyRequest, reply);
 
     expect(reply.status).toHaveBeenCalledWith(200);
     expect(reply.send).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe('CategoryController.getAll', () => {
     const controller = new CategoryController();
     const reply = createMockReply();
 
-    await expect(controller.getAll({} as FastifyRequest, reply)).rejects.toThrow(
+    await expect(controller.getAllCategories({} as FastifyRequest, reply)).rejects.toThrow(
       'database unavailable',
     );
   });

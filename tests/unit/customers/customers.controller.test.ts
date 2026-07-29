@@ -5,6 +5,10 @@ vi.mock('../../../src/api/customers/customers.dao', () => ({
   getAllCustomers: vi.fn(),
 }));
 
+vi.mock('../../../src/shared/utils/fileStreams', () => ({
+  buildFileUrl: (fileId: string) => `https://files.example.test/files/${fileId}`,
+}));
+
 import { getAllCustomers } from '../../../src/api/customers/customers.dao';
 import { getCustomers } from '../../../src/api/customers/customers.controller';
 
@@ -28,7 +32,7 @@ describe('getCustomers', () => {
       {
         id: 'cust-1',
         name: 'Acme Corp',
-        file: { filePath: '/logos/acme.png' },
+        file: { id: 'customer-file-1' },
         createdAt: new Date('2026-01-01'),
         updatedAt: new Date('2026-01-02'),
       },
@@ -46,7 +50,7 @@ describe('getCustomers', () => {
           {
             id: 'cust-1',
             name: 'Acme Corp',
-            logoUrl: '/logos/acme.png',
+            logoUrl: 'https://files.example.test/files/customer-file-1',
             createdAt: new Date('2026-01-01'),
             updatedAt: new Date('2026-01-02'),
           },

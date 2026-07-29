@@ -1,5 +1,5 @@
 import { ProductFileType, ProductStatus } from '@prisma/client';
-import { buildFileUrl } from '../../shared/utils/local-storage';
+import { buildFileUrl } from '../../shared/utils/fileStreams';
 import prisma from '../../shared/db/prisma';
 
 export const getProductsByCategory = async (categoryId: string) => {
@@ -114,11 +114,11 @@ export const getAllProducts = async (categoryId?: string, search?: string) => {
       deletedAt: null,
       ...(search
         ? {
-            OR: [
-              { name: { contains: search, mode: 'insensitive' } },
-              { description: { contains: search, mode: 'insensitive' } },
-            ],
-          }
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        }
         : {}),
     },
     include: {
@@ -151,10 +151,10 @@ export const getAllProducts = async (categoryId?: string, search?: string) => {
     const mapDocument = (document: (typeof product.documents)[number] | undefined) =>
       document
         ? {
-            id: document.id,
-            fileName: document.file.fileName,
-            fileUrl: buildFileUrl(document.fileId),
-          }
+          id: document.id,
+          fileName: document.file.fileName,
+          fileUrl: buildFileUrl(document.fileId),
+        }
         : null;
 
     return {
@@ -168,11 +168,11 @@ export const getAllProducts = async (categoryId?: string, search?: string) => {
       },
       image: image
         ? {
-            id: image.id,
-            fileName: image.file.fileName,
-            imageUrl: buildFileUrl(image.filePathId),
-            displayOrder: image.displayOrder,
-          }
+          id: image.id,
+          fileName: image.file.fileName,
+          imageUrl: buildFileUrl(image.filePathId),
+          displayOrder: image.displayOrder,
+        }
         : null,
       specSheet: mapDocument(specSheet),
       technicalDrawing: mapDocument(technicalDrawing),

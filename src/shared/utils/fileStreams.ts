@@ -41,11 +41,17 @@ export function resolveFile(relativePath: string): ResolvedFile {
     throw new ForbiddenError('Invalid file path');
   }
 
-  if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isFile()) {
+  let stat: fs.Stats;
+  try {
+    stat = fs.statSync(absolutePath);
+  } catch {
     throw new NotFoundError('File not found');
   }
 
-  const stat = fs.statSync(absolutePath);
+  if (!stat.isFile()) {
+    throw new NotFoundError('File not found');
+  }
+
   const ext = path.extname(absolutePath).toLowerCase();
 
   return {

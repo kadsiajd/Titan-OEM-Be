@@ -101,6 +101,35 @@ describe('EnquiryController.create', () => {
     );
   });
 
+  it('accepts a formatted phone number that passes frontend validation', async () => {
+    const created = {
+      id: 'enq-1',
+      name: 'Jane Doe',
+      company: 'Acme Corp',
+      email: 'jane@acme.com',
+      phone: '+1 234-567-8900',
+      message: null,
+      createdAt: new Date('2026-01-01'),
+    };
+    createMock.mockResolvedValue(created);
+
+    const controller = new EnquiryController();
+    const reply = createMockReply();
+
+    await controller.create(
+      createMockRequest({
+        name: 'Jane Doe',
+        company: 'Acme Corp',
+        email: 'jane@acme.com',
+        phone: '+1 234-567-8900',
+      }),
+      reply,
+    );
+
+    expect(createMock).toHaveBeenCalledWith(expect.objectContaining({ phone: '+1 234-567-8900' }));
+    expect(reply.status).toHaveBeenCalledWith(201);
+  });
+
   it('propagates a dao failure instead of swallowing it', async () => {
     createMock.mockRejectedValue(new Error('database unavailable'));
 

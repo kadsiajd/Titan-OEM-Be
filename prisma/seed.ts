@@ -44,7 +44,7 @@ const CATEGORIES = [
     imagePath: '/categories/mechanical.png',
   },
   {
-    name: 'Micromotors',
+    name: 'Micromotor',
     description:
       'Compact micromotor movements designed for precise multi-hand and independent hand control.',
     imageName: 'micromotors.png',

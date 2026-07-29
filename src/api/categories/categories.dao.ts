@@ -1,5 +1,5 @@
 import prisma from '../../shared/db/prisma';
-import { buildFileUrl } from '../../shared/utils/local-storage';
+import { buildFileUrl } from '../../shared/utils/fileStreams';
 import { Category } from './categories.interface';
 
 class CategoryDao {
