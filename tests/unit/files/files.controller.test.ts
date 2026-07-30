@@ -10,7 +10,7 @@ vi.mock('../../../src/api/files/files.dao', () => ({
   findById: findByIdMock,
 }));
 
-vi.mock('../../../src/shared/utils/local-storage', () => ({
+vi.mock('../../../src/shared/utils/fileStreams', () => ({
   resolveFile: resolveFileMock,
   streamFile: streamFileMock,
 }));
