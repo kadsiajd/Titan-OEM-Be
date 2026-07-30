@@ -8,7 +8,7 @@ vi.mock('../../../src/shared/db/prisma', () => ({
   },
 }));
 
-vi.mock('../../../src/shared/utils/local-storage', () => ({
+vi.mock('../../../src/shared/utils/fileStreams', () => ({
   buildFileUrl: vi.fn(),
 }));
 

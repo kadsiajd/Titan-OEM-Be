@@ -10,7 +10,7 @@ vi.mock('../../../src/api/customers/customers.dao', () => ({
   },
 }));
 
-vi.mock('../../../src/shared/utils/local-storage', () => ({
+vi.mock('../../../src/shared/utils/fileStreams', () => ({
   buildFileUrl: buildFileUrlMock,
 }));
 
@@ -30,7 +30,7 @@ describe('CustomerController.getCustomers', () => {
     vi.clearAllMocks();
   });
 
-  it('maps each customer to the response shape and sends it via the success envelope', async () => {
+  it('maps customers and returns them in the success response', async () => {
     const createdAt = new Date('2026-01-01');
     const updatedAt = new Date('2026-01-02');
 
@@ -75,9 +75,9 @@ describe('CustomerController.getCustomers', () => {
     );
   });
 
-  it('returns null as logoUrl when the customer has no file', async () => {
+  it('returns null logoUrl when the customer has no file', async () => {
     const createdAt = new Date('2026-01-01');
-    const updatedAt = new Date('2026-01-01');
+    const updatedAt = new Date('2026-01-02');
 
     getAllCustomersMock.mockResolvedValue([
       {
@@ -97,13 +97,15 @@ describe('CustomerController.getCustomers', () => {
 
     const [response] = (reply.send as ReturnType<typeof vi.fn>).mock.calls[0];
 
-    expect(response.data[0]).toEqual({
-      id: 'cust-2',
-      name: 'No Logo Inc',
-      logoUrl: null,
-      createdAt,
-      updatedAt,
-    });
+    expect(response.data).toEqual([
+      {
+        id: 'cust-2',
+        name: 'No Logo Inc',
+        logoUrl: null,
+        createdAt,
+        updatedAt,
+      },
+    ]);
   });
 
   it('propagates a dao failure instead of swallowing it', async () => {

@@ -16,10 +16,7 @@ export const getFile = async (request: FastifyRequest, reply: FastifyReply) => {
 
   const file = resolveFile(fileRecord.filePath);
 
-
-  const downloadFileName = DOWNLOAD_MIME_TYPES.has(file.mimeType)
-    ? fileRecord.fileName
-    : undefined;
+  const downloadFileName = DOWNLOAD_MIME_TYPES.has(file.mimeType) ? fileRecord.fileName : undefined;
 
   return streamFile(request, reply, file, { downloadFileName });
 };
