@@ -15,14 +15,13 @@ describe('EnquiryDao.create', () => {
   const createMock = vi.mocked(prisma.enquiry.create);
 
   beforeEach(() => {
-    createMock.mockReset();
+    vi.clearAllMocks();
   });
 
   it('passes only the expected fields through to prisma', async () => {
     createMock.mockResolvedValue({} as never);
-    const dao = new EnquiryDao();
 
-    await dao.create({
+    await EnquiryDao.create({
       name: 'Jane Doe',
       company: 'Acme Corp',
       email: 'jane@acme.com',
@@ -51,15 +50,27 @@ describe('EnquiryDao.create', () => {
       message: null,
       createdAt: new Date('2026-01-01'),
     };
-    createMock.mockResolvedValue(created as never);
-    const dao = new EnquiryDao();
 
-    const result = await dao.create({
+    createMock.mockResolvedValue(created as never);
+
+    const result = await EnquiryDao.create({
       name: 'Jane Doe',
       company: 'Acme Corp',
       email: 'jane@acme.com',
     });
 
     expect(result).toEqual(created);
+  });
+
+  it('propagates a prisma error', async () => {
+    createMock.mockRejectedValue(new Error('database unavailable'));
+
+    await expect(
+      EnquiryDao.create({
+        name: 'Jane Doe',
+        company: 'Acme Corp',
+        email: 'jane@acme.com',
+      }),
+    ).rejects.toThrow('database unavailable');
   });
 });

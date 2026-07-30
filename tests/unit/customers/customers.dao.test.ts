@@ -9,19 +9,19 @@ vi.mock('../../../src/shared/db/prisma', () => ({
 }));
 
 import prisma from '../../../src/shared/db/prisma';
-import { getAllCustomers } from '../../../src/api/customers/customers.dao';
+import { customerDao } from '../../../src/api/customers/customers.dao';
 
-describe('getAllCustomers', () => {
+describe('CustomerDao.getAllCustomers', () => {
   const findManyMock = vi.mocked(prisma.customer.findMany);
 
   beforeEach(() => {
-    findManyMock.mockReset();
+    vi.clearAllMocks();
   });
 
   it('queries non-deleted customers including their file, newest first', async () => {
     findManyMock.mockResolvedValue([]);
 
-    await getAllCustomers();
+    await customerDao.getAllCustomers();
 
     expect(findManyMock).toHaveBeenCalledWith({
       where: { deletedAt: null },
@@ -35,15 +35,32 @@ describe('getAllCustomers', () => {
       {
         id: 'cust-1',
         name: 'Acme Corp',
-        file: { filePath: '/logos/acme.png' },
+        file: {
+          id: 'file-1',
+        },
         createdAt: new Date('2026-01-01'),
         updatedAt: new Date('2026-01-01'),
       },
     ];
+
     findManyMock.mockResolvedValue(rows as never);
 
-    const result = await getAllCustomers();
+    const result = await customerDao.getAllCustomers();
 
     expect(result).toEqual(rows);
+  });
+
+  it('returns an empty array when no customers are found', async () => {
+    findManyMock.mockResolvedValue([]);
+
+    const result = await customerDao.getAllCustomers();
+
+    expect(result).toEqual([]);
+  });
+
+  it('propagates a prisma error', async () => {
+    findManyMock.mockRejectedValue(new Error('database unavailable'));
+
+    await expect(customerDao.getAllCustomers()).rejects.toThrow('database unavailable');
   });
 });

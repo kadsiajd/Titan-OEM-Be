@@ -148,7 +148,6 @@ const productItemSchema = {
           fileUrl: {
             type: 'string',
           },
-
         },
 
         required: ['id', 'fileId', 'fileType', 'fileName', 'fileUrl'],

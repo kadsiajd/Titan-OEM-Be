@@ -1,15 +1,13 @@
 import { API_METHODS } from '../../config/api-methods';
 import { IRouteOptions } from '../../shared/types/route.interface';
-import EnquiryController from './enquiries.controller';
+import enquiryController from './enquiries.controller';
 import { createEnquiryResponseSchema } from './enquiries.schema';
-
-const controller = new EnquiryController();
 
 const enquiryRoutes: IRouteOptions[] = [
   {
     url: '/enquiries',
     method: API_METHODS.POST,
-    handler: controller.create,
+    handler: enquiryController.create,
     schema: createEnquiryResponseSchema,
   },
 ];

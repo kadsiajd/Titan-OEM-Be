@@ -4,9 +4,9 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 const findAllMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../src/api/categories/categories.dao', () => ({
-  default: vi.fn().mockImplementation(() => ({
+  default: {
     findAll: findAllMock,
-  })),
+  },
 }));
 
 import CategoryController from '../../../src/api/categories/categories.controller';
@@ -16,26 +16,37 @@ function createMockReply() {
     status: vi.fn().mockReturnThis(),
     send: vi.fn().mockReturnThis(),
   };
+
   return reply as unknown as FastifyReply;
 }
 
-describe('CategoryController.getAll', () => {
+describe('CategoryController.getAllCategories', () => {
   beforeEach(() => {
-    findAllMock.mockReset();
+    vi.clearAllMocks();
   });
 
   it('responds with the categories from the dao wrapped in the success envelope', async () => {
     const categories = [
-      { id: 'cat-1', name: 'Motors', description: 'Precision motors', imageUrl: '/motors.jpg' },
+      {
+        id: 'cat-1',
+        name: 'Motors',
+        shortDescription: 'Precision motors',
+        briefDescription: 'High-quality precision motors',
+        imageUrl: '/motors.jpg',
+      },
     ];
+
     findAllMock.mockResolvedValue(categories);
 
-    const controller = new CategoryController();
+    const request = {} as FastifyRequest;
     const reply = createMockReply();
 
-    await controller.getAll({} as FastifyRequest, reply);
+    await CategoryController.getAllCategories(request, reply);
+
+    expect(findAllMock).toHaveBeenCalledTimes(1);
 
     expect(reply.status).toHaveBeenCalledWith(200);
+
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({
         success: true,
@@ -48,11 +59,13 @@ describe('CategoryController.getAll', () => {
   it('propagates a dao failure instead of swallowing it', async () => {
     findAllMock.mockRejectedValue(new Error('database unavailable'));
 
-    const controller = new CategoryController();
+    const request = {} as FastifyRequest;
     const reply = createMockReply();
 
-    await expect(controller.getAll({} as FastifyRequest, reply)).rejects.toThrow(
+    await expect(CategoryController.getAllCategories(request, reply)).rejects.toThrow(
       'database unavailable',
     );
+
+    expect(findAllMock).toHaveBeenCalledTimes(1);
   });
 });

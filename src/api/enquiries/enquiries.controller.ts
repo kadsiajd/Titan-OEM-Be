@@ -1,13 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import EnquiryDao from './enquiries.dao';
+import enquiryDao from './enquiries.dao';
 import { createEnquirySchema } from './enquiries.schema';
 import { sendSuccess } from '../../shared/utils/response';
 import { ValidationError } from '../../shared/errors/AppError';
 
 class EnquiryController {
-  private dao = new EnquiryDao();
-
-  create = async (request: FastifyRequest, reply: FastifyReply) => {
+  async create(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createEnquirySchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -20,14 +18,14 @@ class EnquiryController {
       );
     }
 
-    const enquiry = await this.dao.create(parsed.data);
+    const enquiry = await enquiryDao.create(parsed.data);
 
     return sendSuccess(reply, {
       message: 'Enquiry submitted successfully',
       data: enquiry,
       statusCode: 201,
     });
-  };
+  }
 }
 
-export default EnquiryController;
+export default new EnquiryController();

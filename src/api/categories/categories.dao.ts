@@ -21,4 +21,4 @@ class CategoryDao {
   }
 }
 
-export default CategoryDao;
+export default new CategoryDao();
