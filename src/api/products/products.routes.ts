@@ -1,7 +1,7 @@
 import { API_METHODS } from '../../config/api-methods';
 import { IRouteOptions } from '../../shared/types/route.interface';
 
-import * as productsController from './products.controller';
+import productsController from './products.controller';
 
 import { getAllProductsSchema, getProductsSchema } from './products.schema';
 

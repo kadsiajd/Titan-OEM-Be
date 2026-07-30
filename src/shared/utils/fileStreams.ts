@@ -24,16 +24,12 @@ export interface ResolvedFile {
   mimeType: string;
 }
 
-
 export function buildFileUrl(fileId: string): string {
   return `${env.BASE_URL}/files/${fileId}`;
 }
 
-
 export function resolveFile(relativePath: string): ResolvedFile {
-  const normalized = path
-    .normalize(`/${relativePath}`)
-    .replace(/^(\.\.[/\\])+/, '');
+  const normalized = path.normalize(`/${relativePath}`).replace(/^(\.\.[/\\])+/, '');
 
   const absolutePath = path.join(UPLOAD_ROOT, normalized);
 

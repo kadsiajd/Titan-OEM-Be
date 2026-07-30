@@ -2,14 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const findManyMock = vi.hoisted(() => vi.fn());
 
-vi.mock('@prisma/client', () => ({
-  PrismaClient: class {
-    product = { findMany: findManyMock };
-  },
-  ProductStatus: { PUBLISHED: 'PUBLISHED' },
-  ProductFileType: {
-    SPEC_SHEET: 'SPEC_SHEET',
-    TECHNICAL_DRAWING: 'TECHNICAL_DRAWING',
+vi.mock('../../../src/shared/db/prisma', () => ({
+  default: {
+    product: {
+      findMany: findManyMock,
+    },
   },
 }));
 
@@ -17,32 +14,37 @@ vi.mock('../../../src/shared/utils/fileStreams', () => ({
   buildFileUrl: (fileId: string) => `https://files.example.test/files/${fileId}`,
 }));
 
-import { getAllProducts, getProductsByCategory } from '../../../src/api/products/products.dao';
+import ProductsDao from '../../../src/api/products/products.dao';
 
-describe('getProductsByCategory', () => {
+describe('ProductsDao.getProductsByCategory', () => {
   beforeEach(() => {
-    findManyMock.mockReset();
+    vi.clearAllMocks();
   });
 
   it('queries published, non-deleted products with their files and specifications', async () => {
     findManyMock.mockResolvedValue([]);
 
-    await getProductsByCategory('category-1');
+    await ProductsDao.getProductsByCategory('category-1');
 
-    expect(findManyMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { categoryId: 'category-1', status: 'PUBLISHED', deletedAt: null },
-        include: expect.objectContaining({
-          category: true,
-          images: expect.any(Object),
-          documents: expect.any(Object),
-          specifications: expect.any(Object),
-        }),
+    expect(findManyMock).toHaveBeenCalledWith({
+      where: {
+        categoryId: 'category-1',
+        status: 'PUBLISHED',
+        deletedAt: null,
+      },
+      include: expect.objectContaining({
+        category: true,
+        images: expect.any(Object),
+        documents: expect.any(Object),
+        specifications: expect.any(Object),
       }),
-    );
+      orderBy: {
+        name: 'asc',
+      },
+    });
   });
 
-  it('maps category, product-image, and document URLs into the public response', async () => {
+  it('maps category, product image, specifications, and document URLs into the public response', async () => {
     const createdAt = new Date('2026-07-24T08:00:00.000Z');
     const updatedAt = new Date('2026-07-24T09:00:00.000Z');
 
@@ -67,7 +69,9 @@ describe('getProductsByCategory', () => {
             id: 'image-1',
             filePathId: 'product-file-1',
             displayOrder: 1,
-            file: { fileName: 'quartz-6130.png' },
+            file: {
+              fileName: 'quartz-6130.png',
+            },
           },
         ],
         specifications: [
@@ -86,13 +90,17 @@ describe('getProductsByCategory', () => {
             id: 'document-1',
             fileId: 'document-file-1',
             fileType: 'SPEC_SHEET',
-            file: { fileName: 'spec-sheet-placeholder.pdf' },
+            file: {
+              fileName: 'spec-sheet-placeholder.pdf',
+            },
           },
         ],
       },
     ]);
 
-    await expect(getProductsByCategory('category-1')).resolves.toEqual([
+    const result = await ProductsDao.getProductsByCategory('category-1');
+
+    expect(result).toEqual([
       {
         id: 'product-1',
         name: '6130',
@@ -140,19 +148,104 @@ describe('getProductsByCategory', () => {
     ]);
   });
 
-  it('returns a primary image and the two document types with category and search filters', async () => {
+  it('returns an empty array when no products are found', async () => {
+    findManyMock.mockResolvedValue([]);
+
+    const result = await ProductsDao.getProductsByCategory('category-1');
+
+    expect(result).toEqual([]);
+  });
+
+  it('propagates a prisma error', async () => {
+    findManyMock.mockRejectedValue(new Error('database unavailable'));
+
+    await expect(ProductsDao.getProductsByCategory('category-1')).rejects.toThrow(
+      'database unavailable',
+    );
+  });
+});
+
+describe('ProductsDao.getAllProducts', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('queries all published and non-deleted products without filters', async () => {
+    findManyMock.mockResolvedValue([]);
+
+    await ProductsDao.getAllProducts();
+
+    expect(findManyMock).toHaveBeenCalledWith({
+      where: {
+        status: 'PUBLISHED',
+        deletedAt: null,
+      },
+      include: expect.objectContaining({
+        category: true,
+        images: expect.any(Object),
+        documents: expect.any(Object),
+      }),
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  });
+
+  it('queries products using category and search filters', async () => {
+    findManyMock.mockResolvedValue([]);
+
+    await ProductsDao.getAllProducts('category-1', '613');
+
+    expect(findManyMock).toHaveBeenCalledWith({
+      where: {
+        categoryId: 'category-1',
+        status: 'PUBLISHED',
+        deletedAt: null,
+        OR: [
+          {
+            name: {
+              contains: '613',
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: '613',
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      include: expect.objectContaining({
+        category: true,
+        images: expect.any(Object),
+        documents: expect.any(Object),
+      }),
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  });
+
+  it('maps the primary image and both document types', async () => {
     findManyMock.mockResolvedValue([
       {
         id: 'product-1',
         name: '6130',
         description: 'A quartz movement',
-        category: { id: 'category-1', name: 'Quartz', filePathId: 'category-file-1' },
+        category: {
+          id: 'category-1',
+          name: 'Quartz',
+          filePathId: 'category-file-1',
+        },
         images: [
           {
             id: 'image-1',
             filePathId: 'product-file-1',
             displayOrder: 1,
-            file: { fileName: 'quartz-6130.png' },
+            file: {
+              fileName: 'quartz-6130.png',
+            },
           },
         ],
         documents: [
@@ -160,19 +253,25 @@ describe('getProductsByCategory', () => {
             id: 'spec-document-1',
             fileId: 'spec-file-1',
             fileType: 'SPEC_SHEET',
-            file: { fileName: '6130-spec.pdf' },
+            file: {
+              fileName: '6130-spec.pdf',
+            },
           },
           {
             id: 'drawing-document-1',
             fileId: 'drawing-file-1',
             fileType: 'TECHNICAL_DRAWING',
-            file: { fileName: '6130-drawing.pdf' },
+            file: {
+              fileName: '6130-drawing.pdf',
+            },
           },
         ],
       },
     ]);
 
-    await expect(getAllProducts('category-1', '613')).resolves.toEqual([
+    const result = await ProductsDao.getAllProducts('category-1', '613');
+
+    expect(result).toEqual([
       {
         id: 'product-1',
         name: '6130',
@@ -200,23 +299,46 @@ describe('getProductsByCategory', () => {
         },
       },
     ]);
+  });
 
-    expect(findManyMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          categoryId: 'category-1',
-          OR: [
-            { name: { contains: '613', mode: 'insensitive' } },
-            { description: { contains: '613', mode: 'insensitive' } },
-          ],
-        }),
-        include: expect.objectContaining({
-          images: expect.objectContaining({
-            where: { deletedAt: null, displayOrder: 1 },
-            take: 1,
-          }),
-        }),
-      }),
-    );
+  it('returns null for image and documents when they are not available', async () => {
+    findManyMock.mockResolvedValue([
+      {
+        id: 'product-1',
+        name: '6130',
+        description: 'A quartz movement',
+        category: {
+          id: 'category-1',
+          name: 'Quartz',
+          filePathId: 'category-file-1',
+        },
+        images: [],
+        documents: [],
+      },
+    ]);
+
+    const result = await ProductsDao.getAllProducts();
+
+    expect(result).toEqual([
+      {
+        id: 'product-1',
+        name: '6130',
+        description: 'A quartz movement',
+        category: {
+          id: 'category-1',
+          name: 'Quartz',
+          imageUrl: 'https://files.example.test/files/category-file-1',
+        },
+        image: null,
+        specSheet: null,
+        technicalDrawing: null,
+      },
+    ]);
+  });
+
+  it('propagates a prisma error', async () => {
+    findManyMock.mockRejectedValue(new Error('database unavailable'));
+
+    await expect(ProductsDao.getAllProducts()).rejects.toThrow('database unavailable');
   });
 });

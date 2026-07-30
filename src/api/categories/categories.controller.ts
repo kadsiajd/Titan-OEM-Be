@@ -1,18 +1,16 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import CategoryDao from './categories.dao';
 import { sendSuccess } from '../../shared/utils/response';
+import categoriesDao from './categories.dao';
 
 class CategoryController {
-  private dao = new CategoryDao();
-
-  getAllCategories = async (_request: FastifyRequest, reply: FastifyReply) => {
-    const categories = await this.dao.findAll();
+  async getAllCategories(_request: FastifyRequest, reply: FastifyReply) {
+    const categories = await categoriesDao.findAll();
 
     return sendSuccess(reply, {
       message: 'Categories fetched successfully',
       data: categories,
     });
-  };
+  }
 }
 
-export default CategoryController;
+export default new CategoryController();

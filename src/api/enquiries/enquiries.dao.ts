@@ -15,4 +15,4 @@ class EnquiryDao {
   }
 }
 
-export default EnquiryDao;
+export default new EnquiryDao();
