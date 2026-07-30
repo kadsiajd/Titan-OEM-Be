@@ -1,6 +1,5 @@
 import { ProductFileType, ProductStatus } from '@prisma/client';
-
-import { buildFileUrl } from '../../shared/utils/local-storage';
+import { buildFileUrl } from '../../shared/utils/fileStreams';
 import prisma from '../../shared/db/prisma';
 
 class ProductsDao {

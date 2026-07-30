@@ -13,7 +13,10 @@ export const createEnquirySchema = z.object({
     .string()
     .trim()
     .optional()
-    .refine((val) => !val || /^[0-9]+$/.test(val), 'Phone number must contain only numbers'),
+    .refine(
+      (val) => !val || (/^\+?[0-9\s()-]+$/.test(val) && /\d/.test(val)),
+      'Enter a valid phone number',
+    ),
   message: z.string().trim().optional(),
 });
 

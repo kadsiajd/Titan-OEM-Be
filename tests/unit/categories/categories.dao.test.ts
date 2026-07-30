@@ -8,12 +8,12 @@ vi.mock('../../../src/shared/db/prisma', () => ({
   },
 }));
 
-vi.mock('../../../src/shared/utils/local-storage', () => ({
+vi.mock('../../../src/shared/utils/fileStreams', () => ({
   buildFileUrl: vi.fn(),
 }));
 
 import prisma from '../../../src/shared/db/prisma';
-import { buildFileUrl } from '../../../src/shared/utils/local-storage';
+import { buildFileUrl } from '../../../src/shared/utils/fileStreams';
 import CategoryDao from '../../../src/api/categories/categories.dao';
 
 describe('CategoryDao.findAll', () => {

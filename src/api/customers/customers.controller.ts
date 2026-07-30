@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { customerDao } from './customers.dao';
 import { CustomerResponse } from './customers.interface';
 import { sendSuccess } from '../../shared/utils/response';
-import { buildFileUrl } from '../../shared/utils/local-storage';
+import { buildFileUrl } from '../../shared/utils/fileStreams';
 
 export class CustomerController {
   async getCustomers(_request: FastifyRequest, reply: FastifyReply) {
