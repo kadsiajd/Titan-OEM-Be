@@ -4,6 +4,7 @@ import {
   SpecificationFieldType,
   ProductFileType,
 } from '@prisma/client';
+import { MAX_HERO_BANNER_IMAGES } from '../src/config/constants';
 
 const prisma = new PrismaClient();
 
@@ -1084,7 +1085,6 @@ async function seedProducts(categoryName: string, categoryId: string, products: 
       });
     }
 
-    // Documents (placeholder until real files are uploaded per product)
     await prisma.productDocument.upsert({
       where: {
         productId_fileType: {
@@ -1126,6 +1126,68 @@ async function seedProducts(categoryName: string, categoryId: string, products: 
 }
 
 /* =========================================================
+   HERO BANNER SEED
+========================================================= */
+
+const HERO_BANNER_SLIDES = [
+  {
+    title: 'Precision in Every Detail',
+    description:
+      'Engineering excellence and innovative solutions for the watch industry. Trusted by leading brands worldwide.',
+    fileName: 'hb1.jpeg',
+    filePath: '/Herobanner/hb1.jpeg',
+  },
+  {
+    title: 'Innovation That Moves Time',
+    description:
+      'Advanced engineering solutions designed for precision, reliability, and performance.',
+    fileName: 'hb2.png',
+    filePath: '/Herobanner/hb2.png',
+  },
+];
+
+async function seedHeroBanner() {
+  console.log('\n🖼️  Seeding hero banner...\n');
+
+  if (HERO_BANNER_SLIDES.length > MAX_HERO_BANNER_IMAGES) {
+    throw new Error(
+      `Hero banner supports a maximum of ${MAX_HERO_BANNER_IMAGES} slides, got ${HERO_BANNER_SLIDES.length}`,
+    );
+  }
+
+  for (const slideData of HERO_BANNER_SLIDES) {
+    const file = await seedFile(slideData.fileName, slideData.filePath);
+
+    const existingSlide = await prisma.heroBannerSlide.findFirst({
+      where: {
+        fileId: file.id,
+      },
+    });
+
+    if (existingSlide) {
+      await prisma.heroBannerSlide.update({
+        where: { id: existingSlide.id },
+        data: {
+          title: slideData.title,
+          description: slideData.description,
+          deletedAt: null,
+        },
+      });
+    } else {
+      await prisma.heroBannerSlide.create({
+        data: {
+          title: slideData.title,
+          description: slideData.description,
+          fileId: file.id,
+        },
+      });
+    }
+
+    console.log(`✅ ${slideData.title}`);
+  }
+}
+
+/* =========================================================
    MAIN
 ========================================================= */
 
@@ -1141,7 +1203,9 @@ async function main() {
 
     await seedProducts('Mechanical', categories.Mechanical.id, MECHANICAL_PRODUCTS);
 
-    await seedProducts('Micromotors', categories.Micromotors.id, MICROMOTOR_PRODUCTS);
+    await seedProducts('Micromotors', categories.Micromotor.id, MICROMOTOR_PRODUCTS);
+
+    await seedHeroBanner();
 
     console.log('\n==========================================');
     console.log('🎉 DATABASE SEED COMPLETED SUCCESSFULLY');

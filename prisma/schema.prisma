@@ -99,31 +99,47 @@ model Function {
 }
 
 model File {
-  id               String             @id @default(uuid()) @db.Uuid
-  fileName         String             @map("file_name")
-  filePath         String             @map("file_path")
-  fileSize         BigInt             @map("file_size")
+  id               String            @id @default(uuid()) @db.Uuid
+  fileName         String            @map("file_name")
+  filePath         String            @map("file_path")
+  fileSize         BigInt            @map("file_size")
   categories       Category[]
   customers        Customer[]
   productDocuments ProductDocument[]
   productImages    ProductImages[]
-  createdAt        DateTime           @default(now()) @map("created_at")
-  deletedAt        DateTime?          @map("deleted_at")
+  heroBannerSlides HeroBannerSlide[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  deletedAt        DateTime?         @map("deleted_at")
 
   @@index([deletedAt])
   @@map("files")
 }
 
+model HeroBannerSlide {
+  id          String    @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  fileId      String    @map("file_id") @db.Uuid
+  file        File      @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([fileId])
+  @@index([deletedAt])
+  @@map("hero_banner_slides")
+}
+
 model ProductDocument {
-  id         String          @id @default(uuid()) @db.Uuid
-  fileType   ProductFileType
-  fileId     String          @db.Uuid
-  file       File            @relation(fields: [fileId], references: [id])
-  productId  String          @db.Uuid
-  product    Product         @relation(fields: [productId], references: [id])
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  deletedAt  DateTime?       @map("deleted_at")
+  id        String          @id @default(uuid()) @db.Uuid
+  fileType  ProductFileType
+  fileId    String          @db.Uuid
+  file      File            @relation(fields: [fileId], references: [id])
+  productId String          @db.Uuid
+  product   Product         @relation(fields: [productId], references: [id])
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  deletedAt DateTime?       @map("deleted_at")
 
   @@unique([productId, fileType])
   @@map("product_documents")
@@ -135,7 +151,7 @@ model Product {
   category       Category               @relation(fields: [categoryId], references: [id])
   status         ProductStatus          @default(DRAFT)
   name           String
-  description    String                @default("no description found")
+  description    String                 @default("no description found")
   images         ProductImages[]
   specifications ProductSpecification[]
   createdAt      DateTime               @default(now())
@@ -221,13 +237,13 @@ model CategorySpecification {
 }
 
 model Customer {
-  id         String    @id @default(uuid()) @db.Uuid
-  name       String
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-  deletedAt  DateTime? @map("deleted_at")
-  file       File?     @relation(fields: [fileId], references: [id])
-  fileId     String?   @db.Uuid
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  file      File?     @relation(fields: [fileId], references: [id])
+  fileId    String?   @db.Uuid
 
   @@map("customers")
 }
